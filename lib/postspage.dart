@@ -1,12 +1,14 @@
-import 'package:favorite_button/favorite_button.dart';
+//import 'package:favorite_button/favorite_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+//import 'package:getwidget/getwidget.dart';
 import 'package:mdproject/aboutpage.dart';
 import 'package:mdproject/blocandcubit/websocketcubit.dart';
 import 'package:mdproject/createpostpage.dart';
-
 import 'package:mdproject/websocketstate.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:mdproject/favoritepage.dart';
 
 class PostPageList extends StatefulWidget {
   const PostPageList({required this.finalProjectApi, Key? key})
@@ -20,6 +22,12 @@ class PostPageList extends StatefulWidget {
 }
 
 class _PostPageListState extends State<PostPageList> {
+  Color _iconColor = Colors.black;
+  Future<void> FilterThePageWithDate() {
+    getPostDetails();
+    return Future.delayed(Duration(seconds: 2));
+  }
+
   @override
   initState() {
     getPostDetails();
@@ -27,7 +35,12 @@ class _PostPageListState extends State<PostPageList> {
   }
 
   void getPostDetails() {
-    widget.finalProjectApi.sink.add('{"type": "get_posts"}');
+    widget.finalProjectApi.sink
+        .add('{"type": "get_posts", "data": {"sortBy": "date"}}');
+  }
+
+  void favoritePost() {
+    widget.finalProjectApi.sink.add('{"type":"get_posts",}');
   }
 
   @override
@@ -70,7 +83,9 @@ class _PostPageListState extends State<PostPageList> {
                           radius: 20,
                           backgroundColor: Colors.white,
                           child: IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              FilterThePageWithDate();
+                            },
                             icon: const Icon(Icons.sort),
                             alignment: Alignment.topRight,
                           ),
@@ -79,7 +94,7 @@ class _PostPageListState extends State<PostPageList> {
                           radius: 20,
                           backgroundColor: Colors.white,
                           child: IconButton(
-                            onPressed: () {},
+                            onPressed: () => pushToFavoriteWordsRoute(context),
                             icon: const Icon(
                               Icons.favorite,
                               color: Colors.red,
@@ -119,11 +134,13 @@ class _PostPageListState extends State<PostPageList> {
                               child: ListView.builder(
                                   itemCount: state.postDataList.length,
                                   itemBuilder: (context, index) {
+                                    DateTime template = DateTime.parse(
+                                        state.postDataList[index].date);
                                     return Card(
                                       child: Container(
                                         padding: const EdgeInsets.only(
-                                            top: 50,
-                                            bottom: 50,
+                                            top: 30,
+                                            bottom: 30,
                                             right: 25,
                                             left: 25),
                                         child: Row(
@@ -131,10 +148,24 @@ class _PostPageListState extends State<PostPageList> {
                                               MainAxisAlignment.start,
                                           children: [
                                             Container(
-                                              height: 70,
-                                              width: 64,
-                                              child: Image.network(state
-                                                  .postDataList[index].image),
+                                              height: 100,
+                                              width: 100,
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                  width: 2,
+                                                ),
+                                              ),
+                                              child: Image.network(
+                                                state.postDataList[index].image,
+                                                errorBuilder: (BuildContext
+                                                        context,
+                                                    Object exception,
+                                                    StackTrace? stackTrace) {
+                                                  return const Image(
+                                                      image: AssetImage(
+                                                          'assets/empty.jpg'));
+                                                },
+                                              ),
                                             ),
                                             const SizedBox(width: 20),
                                             Container(
@@ -162,11 +193,11 @@ class _PostPageListState extends State<PostPageList> {
                                                   ),
                                                   Container(
                                                     child: Text(
-                                                        'Date Created: ' +
-                                                            state
-                                                                .postDataList[
-                                                                    index]
-                                                                .date,
+                                                        'Date and Time Created: ' +
+                                                            DateFormat(
+                                                                    'yyyy-MM-dd hh:mm:ss')
+                                                                .format(
+                                                                    template),
                                                         overflow: TextOverflow
                                                             .ellipsis,
                                                         maxLines: 2),
@@ -175,32 +206,64 @@ class _PostPageListState extends State<PostPageList> {
                                               ),
                                             ),
                                             Expanded(
-                                              child: Row(
+                                              child: Column(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.end,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
                                                 children: <Widget>[
-                                                  // IconButton(
-                                                  //   onPressed: () {},
-                                                  //   icon: const Icon(Icons.favorite),
-                                                  //   alignment: Alignment.topRight,
+                                                  IconButton(
+                                                    color: _iconColor,
+                                                    onPressed: () =>
+                                                        setState(() {
+                                                      if (_iconColor ==
+                                                          Colors.black) {
+                                                        _iconColor = Colors.red;
+                                                      } else {
+                                                        _iconColor =
+                                                            Colors.black;
+                                                      }
+                                                    }),
+                                                    icon: const Icon(
+                                                        Icons.favorite),
+                                                    alignment:
+                                                        Alignment.topRight,
+                                                  ),
+                                                  // FavoriteButton(
+                                                  //   //iconSize: 10,
+                                                  //   isFavorite: false,
+                                                  //   valueChanged:
+                                                  //       (_isFavorite) {
+                                                  //     print(
+                                                  //         'Is Favorite: $_isFavorite');
+                                                  //   },
                                                   // ),
-                                                  FavoriteButton(
-                                                    //iconSize: 10,
-                                                    isFavorite: false,
-                                                    valueChanged:
-                                                        (_isFavorite) {
-                                                      print('Is Favorite: ');
-                                                    },
+                                                  IconButton(
+                                                    onPressed: () {},
+                                                    icon: const Icon(IconData(
+                                                            58634,
+                                                            fontFamily:
+                                                                'MaterialIcons')
+                                                        //size: 30,
+                                                        ),
+                                                    alignment:
+                                                        Alignment.topRight,
                                                   ),
                                                   IconButton(
                                                     onPressed: () {},
                                                     icon: const Icon(
                                                       Icons.delete,
-                                                      size: 30,
+                                                      //size: 30,
                                                     ),
                                                     alignment:
                                                         Alignment.topRight,
                                                   ),
+                                                  // GFButton(
+                                                  //   onPressed: () {},
+                                                  //   text: 'Read More',
+                                                  //   shape: GFButtonShape.pills,
+                                                  //   position: GFPosition.end,
+                                                  // )
                                                 ],
                                               ),
                                             ),
@@ -221,127 +284,15 @@ class _PostPageListState extends State<PostPageList> {
       ),
     );
   }
+
+  Future pushToFavoriteWordsRoute(BuildContext context) {
+    favoritePost();
+    return Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) => const FavoriteWordsRoute(
+            //finalProjectApi: savedWords,
+            ),
+      ),
+    );
+  }
 }
-
-// class PostPage extends StatelessWidget {
-//   const PostPage({Key? key, channel}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     // return Scaffold(
-//     //   appBar: AppBar(
-//     //     title: const Text('Final Project'),
-//     //     backgroundColor: Colors.white,
-//     //   ),
-//     //   body: Center(
-//     //     child: Column(
-//     //       children: [
-//     //         Row(
-//     //           children: <Widget>[
-//     //             IconButton(
-//     //               icon: const Icon(
-//     //                 Icons.settings,
-//     //                 color: Colors.grey,
-//     //               ),
-//     //               onPressed: () {
-//     //                 Navigator.push(
-//     //                   context,
-//     //                   MaterialPageRoute(
-//     //                     builder: (context) => const AboutPage(),
-//     //                   ),
-//     //                 );
-//     //               },
-//     //             ),
-//     //             Expanded(
-//     //               child: Row(
-//     //                 mainAxisAlignment: MainAxisAlignment.end,
-//     //                 children: <Widget>[
-//     //                   IconButton(
-//     //                     onPressed: () {},
-//     //                     icon: const Icon(Icons.sort),
-//     //                     alignment: Alignment.topRight,
-//     //                   ),
-//     //                   IconButton(
-//     //                     onPressed: () {},
-//     //                     icon: const Icon(
-//     //                       Icons.favorite,
-//     //                       color: Colors.red,
-//     //                     ),
-//     //                     alignment: Alignment.topRight,
-//     //                   ),
-//     //                   IconButton(
-//     //                     onPressed: () {
-//     //                       Navigator.push(
-//     //                         context,
-//     //                         MaterialPageRoute(
-//     //                             builder: (context) => const CreatePost()),
-//     //                       );
-//     //                     },
-//     //                     icon: const Icon(
-//     //                       Icons.add,
-//     //                       color: Colors.blue,
-//     //                     ),
-//     //                     alignment: Alignment.topRight,
-//     //                   ),
-//     //                 ],
-//     //               ),
-//     //             )
-//     //           ],
-//     //         ),
-//     //         Card(
-//     //           child: Container(
-//     //             padding: const EdgeInsets.all(8),
-//     //             child: Row(
-//     //               mainAxisAlignment: MainAxisAlignment.start,
-//     //               children: [
-//     //                 const CircleAvatar(
-//     //                   radius: 30,
-//     //                   child: CircleAvatar(
-//     //                       // backgroundImage: NetworkImage(
-//     //                       //     'https://www.amkmc.org.sg/wp/wp-content/uploads/ddcab749bde82b971c58cc6e80c462e4.jpg'),
-//     //                       // fit: BoxFit.fill,
-//     //                       ),
-//     //                 ),
-//     //                 const SizedBox(width: 20),
-//     //                 Column(
-//     //                   children: const [
-//     //                     Text('Title: \n Description: \n Date Created:'),
-//     //                   ],
-//     //                 ),
-//     //                 Expanded(
-//     //                   child: Row(
-//     //                     mainAxisAlignment: MainAxisAlignment.end,
-//     //                     children: <Widget>[
-//     //                       // IconButton(
-//     //                       //   onPressed: () {},
-//     //                       //   icon: const Icon(Icons.favorite),
-//     //                       //   alignment: Alignment.topRight,
-//     //                       // ),
-//     //                       FavoriteButton(
-//     //                         //iconSize: 10,
-//     //                         isFavorite: false,
-//     //                         valueChanged: (_isFavorite) {
-//     //                           print('Is Favorite: $_isFavorite');
-//     //                         },
-//     //                       ),
-//     //                       IconButton(
-//     //                         onPressed: () {},
-//     //                         icon: const Icon(
-//     //                           Icons.delete,
-//     //                           size: 30,
-//     //                         ),
-//     //                         alignment: Alignment.topRight,
-//     //                       ),
-//     //                     ],
-//     //                   ),
-//     //                 ),
-//     //               ],
-//     //             ),
-//     //           ),
-//     //         ),
-//     //       ],
-//     //     ),
-//     //   ),
-//     // );
-//   }
-// }

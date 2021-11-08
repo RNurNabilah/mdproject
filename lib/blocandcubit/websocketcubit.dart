@@ -26,6 +26,8 @@ class GetApiData extends Cubit<ApiRequest> {
   }
 
   void checkAddPostDetails(String title, String description, String image) {
+    emit(AddPost(title, description, image));
+
     // emit
   }
 

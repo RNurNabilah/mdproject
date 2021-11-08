@@ -17,7 +17,7 @@ class AddPost extends ApiRequest {
   late String description;
   late String image;
 
-  addPost(String title, String description, String image) {
+  AddPost(String title, String description, String image) {
     this.title = title;
     this.description = description;
     this.image = image;
