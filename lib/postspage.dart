@@ -11,10 +11,9 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:mdproject/favoritepage.dart';
 
 class PostPageList extends StatefulWidget {
-  const PostPageList({required this.finalProjectApi, Key? key})
-      : super(key: key);
+  PostPageList({required this.finalProjectApi, Key? key}) : super(key: key);
 
-  final WebSocketChannel finalProjectApi;
+  WebSocketChannel finalProjectApi;
   //final List<PostsData> storePostData;
 
   @override
@@ -110,7 +109,8 @@ class _PostPageListState extends State<PostPageList> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const CreatePost()),
+                                    builder: (context) => CreatePost(
+                                        api: widget.finalProjectApi)),
                               );
                             },
                             icon: const Icon(

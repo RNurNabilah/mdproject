@@ -36,9 +36,9 @@ class GetApiData extends Cubit<ApiRequest> {
   }
 
   //view all post
-  // void _getPostResponse() {
-  //   finalProjectApi.sink.add('{"type": "get_posts"}');
-  // }
+  void _getPostResponse() {
+    finalProjectApi.sink.add('{"type": "get_posts"}');
+  }
 
   //sign-in
   // void _getSignInResponse(String userInput) {

@@ -3,24 +3,36 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mdproject/blocandcubit/websocketcubit.dart';
 //import 'package:mdproject/postspage.dart';
 import 'package:mdproject/websocketstate.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class CreatePost extends StatefulWidget {
-  const CreatePost({Key? key}) : super(key: key);
-
+  CreatePost({required this.api, Key? key}) : super(key: key);
+  WebSocketChannel api;
   @override
   _CreatePostState createState() => _CreatePostState();
 }
 
 class _CreatePostState extends State<CreatePost> {
   final _titleController = TextEditingController();
+
   final _descController = TextEditingController();
   final _urlController = TextEditingController();
+  dynamic userInputBloc;
   bool _checkInput = false;
   void initState() {
     _titleController.addListener((checkInput));
     _descController.addListener((checkInput));
     _urlController.addListener((checkInput));
     // super.initState();
+  }
+
+  void callCreate() {
+    if (_checkInput) {
+      userInputBloc.AddPost(_titleController, _descController, _urlController);
+      widget.api.sink.add('{"type": "get_posts}');
+    } else {
+      print("error");
+    }
   }
 
   void checkInput() {
@@ -118,7 +130,11 @@ class _CreatePostState extends State<CreatePost> {
                         color: Colors.cyanAccent,
                         child: const Text('Create Post',
                             style: TextStyle(fontSize: 20)),
-                        onPressed: !_checkInput ? null : () {},
+                        onPressed: !_checkInput
+                            ? null
+                            : () {
+                                callCreate();
+                              },
                       ),
                     ),
                   ],

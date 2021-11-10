@@ -197,8 +197,8 @@ class _UserNameWidget extends State<UserNameWidget> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          const PostsDetailsPage()),
+                                      builder: (context) => PostPageList(
+                                          finalProjectApi: finalProjectApi)),
                                 );
                               },
                             ),
